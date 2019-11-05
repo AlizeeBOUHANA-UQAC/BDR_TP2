@@ -13,13 +13,13 @@ import java.util.HashSet;
 
 public class Crawler {
 
-    public static Spell crawlSpells(String link) throws IOException {
+    public static Spell crawlOutsiders(String link) throws IOException {
 
         Document doc = Jsoup.connect(link).get();
         Elements spellsPrepared = doc.select("p:contains(Spells Prepared) + p, p:contains(Spell-Like Abilities) + p"); //selection p suivant <p>Spells Prepared ou <p>Spells Ability
 
 
-        ArrayList<String> spellsList = new ArrayList<>(); //TODO: doublons possibles !!!
+        HashSet<String> spellsList = new HashSet<>(); //pas de doublons dans le Set
         Elements spells = spellsPrepared.select("a.spell");
         for (Element spell : spells){
             String url = spell.toString();
@@ -54,7 +54,7 @@ public class Crawler {
                 }
             }
 
-            Spell s = crawlSpells(url); //envoi au crawler
+            Spell s = crawlOutsiders(url); //envoi au crawler
         }
 
 
