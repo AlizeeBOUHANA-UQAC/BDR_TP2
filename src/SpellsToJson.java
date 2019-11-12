@@ -3,26 +3,21 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SpellsToJson {
-    public static void GenerateJson(ArrayList<Spell> spells) {
-        try (FileWriter file = new FileWriter("Spells.json")) {
+    public static void GenerateJsonAllSpells(ArrayList<Spell> spells) {
+        ArrayList<JSONObject> json = new ArrayList<>();
+        for (Spell sp: spells) {
+            json.add(sp.toJSON());
+        }
+
+        try (FileWriter file = new FileWriter("resources/AllSpells.json")) {
             BufferedWriter out = new BufferedWriter(file);
-
-            int i = 1;
-            out.write("[");
-            for (Spell sp: spells) {
-                out.write(sp.toJSON().toString());
-                if(i<spells.toArray().length)
-                    out.write(',');
-                i++;
-            }
-            out.write("]");
-
+            out.write(json.toString());
             out.close();
+
             System.out.println("Successfully Copied JSON Object to File...");
         } catch (IOException e) {
             e.printStackTrace();
@@ -39,7 +34,7 @@ public class SpellsToJson {
             json.add(crea);
         }
 
-        try (FileWriter file = new FileWriter("resources/Spells.json")) {
+        try (FileWriter file = new FileWriter("resources/SpellsByCreature.json")) {
             BufferedWriter out = new BufferedWriter(file);
             out.write(json.toString());
             out.close();
