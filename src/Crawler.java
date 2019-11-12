@@ -14,14 +14,12 @@ import java.util.HashSet;
 
 public class Crawler {
 
-    public static Spell crawlSpell(String link) throws IOException {
+    public static String crawlSpell(String link) throws IOException {
         Document doc = Jsoup.connect(link).get();
-        //System.out.println(link);
-
-        return null;
+        return doc.select("article>h1").text();
     }
 
-    public static ArrayList<Spell> crawlOutsiders(String link) throws IOException {
+    public static ArrayList<String> crawlOutsiders(String link) throws IOException {
         Document doc = Jsoup.connect(link).get();
         Elements spellsPrepared = doc.select("p:contains(Spells Prepared) + p, p:contains(Spell-Like Abilities) + p"); //selection p suivant <p>Spells Prepared ou <p>Spells Ability
 
@@ -34,7 +32,7 @@ public class Crawler {
             spellsList.add(url);
         }
 
-        ArrayList<Spell> spellsArray = new ArrayList<>();
+        ArrayList<String> spellsArray = new ArrayList<>();
 
         for(String u : spellsList) {
             spellsArray.add(crawlSpell(u));
@@ -46,6 +44,9 @@ public class Crawler {
     public static void main(String[] args) throws IOException {
         Document docHome = Jsoup.connect("https://www.d20pfsrd.com/bestiary/Monster-listings").get();
         Elements urlOutsider = docHome.select("td:contains(Outsiders) li.page.new.parent a");
+
+        HashMap<String, ArrayList<String>> spellsByCrea = new HashMap<>();
+
         for(Element outsider : urlOutsider){
             String url = outsider.toString();
             url = url.substring(url.indexOf("\"")+1);
@@ -63,19 +64,22 @@ public class Crawler {
                 }
             }
 
-            //String name =
-            HashMap<String, ArrayList<Spell>> spellsByCrea = new HashMap<>();
+            String[] urlSplitted = url.split("/");
+            String name = urlSplitted[urlSplitted.length-1].replaceAll("-", " ");
+            name = name.substring(0, 1).toUpperCase() + name.substring(1);
 
             try {
-                spellsByCrea.put(url, crawlOutsiders(url)); //envoi au crawler
+                ArrayList<String> spellCrea = crawlOutsiders(url);
+
+                if(spellCrea.size()>0)
+                    spellsByCrea.put(name, spellCrea);
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
+        SpellsToJson.GenerateJsonSpellsByCrea(spellsByCrea);
     }
-
-
 }
 
