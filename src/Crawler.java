@@ -6,6 +6,7 @@ import org.json.*;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.*;
 
 import java.io.IOException;
@@ -13,11 +14,16 @@ import java.util.HashSet;
 
 public class Crawler {
 
-    public static Spell crawlOutsiders(String link) throws IOException {
+    public static Spell crawlSpell(String link) throws IOException {
+        Document doc = Jsoup.connect(link).get();
+        //System.out.println(link);
 
+        return null;
+    }
+
+    public static ArrayList<Spell> crawlOutsiders(String link) throws IOException {
         Document doc = Jsoup.connect(link).get();
         Elements spellsPrepared = doc.select("p:contains(Spells Prepared) + p, p:contains(Spell-Like Abilities) + p"); //selection p suivant <p>Spells Prepared ou <p>Spells Ability
-
 
         HashSet<String> spellsList = new HashSet<>(); //pas de doublons dans le Set
         Elements spells = spellsPrepared.select("a.spell");
@@ -28,10 +34,13 @@ public class Crawler {
             spellsList.add(url);
         }
 
-        System.out.print((!spellsList.isEmpty())?"creature " + link + "\n": "");
+        ArrayList<Spell> spellsArray = new ArrayList<>();
 
-        //return erreur (spell vide)
-        return new Spell(null, 0, new ArrayList<>(), false);
+        for(String u : spellsList) {
+            spellsArray.add(crawlSpell(u));
+        }
+
+        return spellsArray;
     }
 
     public static void main(String[] args) throws IOException {
@@ -54,30 +63,17 @@ public class Crawler {
                 }
             }
 
-            Spell s = crawlOutsiders(url); //envoi au crawler
+            //String name =
+            HashMap<String, ArrayList<Spell>> spellsByCrea = new HashMap<>();
+
+            try {
+                spellsByCrea.put(url, crawlOutsiders(url)); //envoi au crawler
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-
-
-/*
-        String link = "https://www.d20pfsrd.com/bestiary/monster-listings/outsiders/azata/bralani/";
-        Spell s = crawlSpells(link);
-        */
-
-/*
-        ArrayList<Spell> arraySpells = new ArrayList<>();
-        // boucle pour tous les spells
-        for (int i = 1 ; i<1501 ; i++) {
-        String link = "http://www.dxcontent.com/SDB_SpellBlock.asp?SDBID="+i;
-        Spell s = crawlSpells(link);
-        if(s.getName() != null){
-        arraySpells.add(s);
-        }
-        }
-        SpellsToJson.GenerateJson(arraySpells);
-
-
- */
     }
 
 
